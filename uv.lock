@@ -25,6 +25,7 @@ dependencies = [
     { name = "flask" },
     { name = "flask-migrate" },
     { name = "flask-sqlalchemy" },
+    { name = "pyyaml" },
     { name = "redis" },
 ]
 
@@ -34,6 +35,7 @@ requires-dist = [
     { name = "flask", specifier = ">=3.1.1" },
     { name = "flask-migrate", specifier = ">=4.1.0" },
     { name = "flask-sqlalchemy", specifier = ">=3.1.1" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "redis", specifier = ">=6.2.0" },
 ]
 
