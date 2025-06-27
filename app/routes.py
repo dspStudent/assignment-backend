@@ -9,6 +9,7 @@ bp = Blueprint('api_bp', __name__)
 
 @bp.route('/books', methods=['GET'])
 @swag_from({
+    'tags': ['Books'],
     'responses': {
         200: {
             'description': 'A list of books was successfully retrieved',
