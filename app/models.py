@@ -10,6 +10,7 @@ class Book(db.Model):
     author = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     reviews = db.relationship('Review', backref='book', lazy=True)
+    deleted = db.Column(db.Boolean, default=False)
 
 class Review(db.Model):
     """ Model representing a review for a book."""
