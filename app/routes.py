@@ -1,7 +1,7 @@
 # filepath: d:\assignment-backend\assignment-backend\app\routes.py
 from flask import Blueprint
 from flask import Blueprint, jsonify, request
-from .book_review_service import get_all_books, create_books
+from .book_review_service import get_all_books, create_books, get_reviews_by_book_id
 from flasgger import swag_from
 
 bp = Blueprint('api_bp', __name__)
@@ -122,3 +122,60 @@ def add_books():
         return jsonify(created), 201
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
+    
+@bp.route('/books/<int:book_id>/reviews', methods=['GET'])
+@swag_from({
+    'tags': ['Reviews'],
+    'parameters': [
+        {
+            'name': 'book_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the book'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'List of reviews for the book',
+            'schema': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'integer'},
+                        'book_id': {'type': 'integer'},
+                        'reviewer': {'type': 'string'},
+                        'rating': {'type': 'integer'},
+                        'comment': {'type': 'string'}
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'Book not found or no reviews',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'}
+                }
+            }
+        }
+    }
+})
+def get_book_reviews(book_id):
+    from .book_review_service import get_reviews_by_book_id
+    reviews = get_reviews_by_book_id(book_id)
+    if reviews is None:
+        return jsonify({'message': 'Book not found'}), 404
+    if not reviews:
+        return jsonify([]), 200
+    return jsonify([
+        {
+            'id': review.id,
+            'book_id': review.book_id,
+            'reviewer': review.reviewer,
+            'rating': review.rating,
+            'comment': review.comment
+        } for review in reviews
+    ]), 200

@@ -46,3 +46,11 @@ def create_books(book_list):
             "description": book.description
         } for book in created_books
     ]
+
+def get_reviews_by_book_id(book_id):
+    """Fetches all reviews for a given book ID."""
+    from app.models import Book, Review  # Adjust import as needed
+    book = Book.query.get(book_id)
+    if not book:
+        return None
+    return Review.query.filter_by(book_id=book_id).all()
