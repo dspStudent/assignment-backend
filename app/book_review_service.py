@@ -54,3 +54,21 @@ def get_reviews_by_book_id(book_id):
     if not book:
         return None
     return Review.query.filter_by(book_id=book_id).all()
+
+
+def add_review_to_book(book_id, review_data):
+    """ Adds a review to a book with the given ID."""
+    from app.models import Book, Review
+    book = Book.query.get(book_id)
+    if not book:
+        return None
+    reviewer = review_data.get('reviewer')
+    comment = review_data.get('comment')
+    review = Review(
+        book_id=book_id,
+        reviewer=reviewer,
+        content=comment
+    )
+    db.session.add(review)
+    db.session.commit()
+    return review

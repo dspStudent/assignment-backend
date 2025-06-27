@@ -175,7 +175,84 @@ def get_book_reviews(book_id):
             'id': review.id,
             'book_id': review.book_id,
             'reviewer': review.reviewer,
-            'rating': review.rating,
-            'comment': review.comment
+            'content': review.content
         } for review in reviews
     ]), 200
+
+@bp.route('/books/<int:book_id>/reviews', methods=['POST'])
+@swag_from({
+    'tags': ['Reviews'],
+    'parameters': [
+        {
+            'name': 'book_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the book'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'reviewer': {'type': 'string'},
+                    'rating': {'type': 'integer'},
+                    'comment': {'type': 'string'}
+                },
+                'required': ['reviewer', 'rating']
+            }
+        }
+    ],
+    'responses': {
+        201: {
+            'description': 'Review created successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'book_id': {'type': 'integer'},
+                    'reviewer': {'type': 'string'},
+                    'rating': {'type': 'integer'},
+                    'comment': {'type': 'string'}
+                }
+            }
+        },
+        400: {
+            'description': 'Invalid input',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'}
+                }
+            }
+        },
+        404: {
+            'description': 'Book not found',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'}
+                }
+            }
+        }
+    }
+})
+def add_review(book_id):
+    from .book_review_service import add_review_to_book
+    data = request.get_json()
+    if not data or 'reviewer' not in data :
+        return jsonify({'message': 'Reviewer  are required'}), 400
+    try:
+        review = add_review_to_book(book_id, data)
+        if review is None:
+            return jsonify({'message': 'Book not found'}), 404
+        return jsonify({
+            'id': review.id,
+            'book_id': review.book_id,
+            'reviewer': review.reviewer,
+            'content': review.content
+        }), 201
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
