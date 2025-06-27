@@ -107,7 +107,18 @@ def get_books():
 })
 def add_books():
     data = request.get_json()
-    if not isinstance(data, list) or not all('title' in book and 'author' in book for book in data):
-        return jsonify({'message': 'Each book must have a title and author'}), 400
-    created = create_books(data)
-    return jsonify(created), 201
+    if (
+        not isinstance(data, list) or
+        not all(
+            isinstance(book, dict) and
+            'title' in book and book['title'].strip() and
+            'author' in book and book['author'].strip()
+            for book in data
+        )
+    ):
+        return jsonify({'message': 'Each book must have a non-empty title and author'}), 400
+    try:
+        created = create_books(data)
+        return jsonify(created), 201
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
